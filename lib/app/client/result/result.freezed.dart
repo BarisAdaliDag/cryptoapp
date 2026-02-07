@@ -12,7 +12,8 @@ part of 'result.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 /// @nodoc
 mixin _$Result<T, E extends Exception> {
@@ -20,52 +21,52 @@ mixin _$Result<T, E extends Exception> {
   TResult when<TResult extends Object?>({
     required TResult Function(T data) success,
     required TResult Function(E error) failure,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(T data)? success,
     TResult? Function(E error)? failure,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(T data)? success,
     TResult Function(E error)? failure,
     required TResult orElse(),
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Success<T, E> value) success,
     required TResult Function(_Failure<T, E> value) failure,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_Success<T, E> value)? success,
     TResult? Function(_Failure<T, E> value)? failure,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Success<T, E> value)? success,
     TResult Function(_Failure<T, E> value)? failure,
     required TResult orElse(),
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $ResultCopyWith<T, E extends Exception, $Res> {
   factory $ResultCopyWith(
-          Result<T, E> value, $Res Function(Result<T, E>) then) =
-      _$ResultCopyWithImpl<T, E, $Res, Result<T, E>>;
+    Result<T, E> value,
+    $Res Function(Result<T, E>) then,
+  ) = _$ResultCopyWithImpl<T, E, $Res, Result<T, E>>;
 }
 
 /// @nodoc
-class _$ResultCopyWithImpl<T, E extends Exception, $Res,
-    $Val extends Result<T, E>> implements $ResultCopyWith<T, E, $Res> {
+class _$ResultCopyWithImpl<
+  T,
+  E extends Exception,
+  $Res,
+  $Val extends Result<T, E>
+>
+    implements $ResultCopyWith<T, E, $Res> {
   _$ResultCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -80,8 +81,9 @@ class _$ResultCopyWithImpl<T, E extends Exception, $Res,
 /// @nodoc
 abstract class _$$SuccessImplCopyWith<T, E extends Exception, $Res> {
   factory _$$SuccessImplCopyWith(
-          _$SuccessImpl<T, E> value, $Res Function(_$SuccessImpl<T, E>) then) =
-      __$$SuccessImplCopyWithImpl<T, E, $Res>;
+    _$SuccessImpl<T, E> value,
+    $Res Function(_$SuccessImpl<T, E>) then,
+  ) = __$$SuccessImplCopyWithImpl<T, E, $Res>;
   @useResult
   $Res call({T data});
 }
@@ -91,22 +93,23 @@ class __$$SuccessImplCopyWithImpl<T, E extends Exception, $Res>
     extends _$ResultCopyWithImpl<T, E, $Res, _$SuccessImpl<T, E>>
     implements _$$SuccessImplCopyWith<T, E, $Res> {
   __$$SuccessImplCopyWithImpl(
-      _$SuccessImpl<T, E> _value, $Res Function(_$SuccessImpl<T, E>) _then)
-      : super(_value, _then);
+    _$SuccessImpl<T, E> _value,
+    $Res Function(_$SuccessImpl<T, E>) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of Result
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? data = freezed,
-  }) {
-    return _then(_$SuccessImpl<T, E>(
-      freezed == data
-          ? _value.data
-          : data // ignore: cast_nullable_to_non_nullable
-              as T,
-    ));
+  $Res call({Object? data = freezed}) {
+    return _then(
+      _$SuccessImpl<T, E>(
+        freezed == data
+            ? _value.data
+            : data // ignore: cast_nullable_to_non_nullable
+                  as T,
+      ),
+    );
   }
 }
 
@@ -221,8 +224,9 @@ abstract class _Success<T, E extends Exception> implements Result<T, E> {
 /// @nodoc
 abstract class _$$FailureImplCopyWith<T, E extends Exception, $Res> {
   factory _$$FailureImplCopyWith(
-          _$FailureImpl<T, E> value, $Res Function(_$FailureImpl<T, E>) then) =
-      __$$FailureImplCopyWithImpl<T, E, $Res>;
+    _$FailureImpl<T, E> value,
+    $Res Function(_$FailureImpl<T, E>) then,
+  ) = __$$FailureImplCopyWithImpl<T, E, $Res>;
   @useResult
   $Res call({E error});
 }
@@ -232,22 +236,23 @@ class __$$FailureImplCopyWithImpl<T, E extends Exception, $Res>
     extends _$ResultCopyWithImpl<T, E, $Res, _$FailureImpl<T, E>>
     implements _$$FailureImplCopyWith<T, E, $Res> {
   __$$FailureImplCopyWithImpl(
-      _$FailureImpl<T, E> _value, $Res Function(_$FailureImpl<T, E>) _then)
-      : super(_value, _then);
+    _$FailureImpl<T, E> _value,
+    $Res Function(_$FailureImpl<T, E>) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of Result
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? error = null,
-  }) {
-    return _then(_$FailureImpl<T, E>(
-      null == error
-          ? _value.error
-          : error // ignore: cast_nullable_to_non_nullable
-              as E,
-    ));
+  $Res call({Object? error = null}) {
+    return _then(
+      _$FailureImpl<T, E>(
+        null == error
+            ? _value.error
+            : error // ignore: cast_nullable_to_non_nullable
+                  as E,
+      ),
+    );
   }
 }
 

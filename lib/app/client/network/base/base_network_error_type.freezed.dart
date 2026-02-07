@@ -12,7 +12,8 @@ part of 'base_network_error_type.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 /// @nodoc
 mixin _$BaseNetworkErrorType {
@@ -22,57 +23,54 @@ mixin _$BaseNetworkErrorType {
     required TResult Function(DioException error) request,
     required TResult Function(String? error) type,
     required TResult Function(String? error) connectivity,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(DioException error)? request,
     TResult? Function(String? error)? type,
     TResult? Function(String? error)? connectivity,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(DioException error)? request,
     TResult Function(String? error)? type,
     TResult Function(String? error)? connectivity,
     required TResult orElse(),
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_RequestError value) request,
     required TResult Function(_TypeError value) type,
     required TResult Function(_Connectivity value) connectivity,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_RequestError value)? request,
     TResult? Function(_TypeError value)? type,
     TResult? Function(_Connectivity value)? connectivity,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_RequestError value)? request,
     TResult Function(_TypeError value)? type,
     TResult Function(_Connectivity value)? connectivity,
     required TResult orElse(),
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $BaseNetworkErrorTypeCopyWith<$Res> {
-  factory $BaseNetworkErrorTypeCopyWith(BaseNetworkErrorType value,
-          $Res Function(BaseNetworkErrorType) then) =
-      _$BaseNetworkErrorTypeCopyWithImpl<$Res, BaseNetworkErrorType>;
+  factory $BaseNetworkErrorTypeCopyWith(
+    BaseNetworkErrorType value,
+    $Res Function(BaseNetworkErrorType) then,
+  ) = _$BaseNetworkErrorTypeCopyWithImpl<$Res, BaseNetworkErrorType>;
 }
 
 /// @nodoc
-class _$BaseNetworkErrorTypeCopyWithImpl<$Res,
-        $Val extends BaseNetworkErrorType>
+class _$BaseNetworkErrorTypeCopyWithImpl<
+  $Res,
+  $Val extends BaseNetworkErrorType
+>
     implements $BaseNetworkErrorTypeCopyWith<$Res> {
   _$BaseNetworkErrorTypeCopyWithImpl(this._value, this._then);
 
@@ -88,8 +86,9 @@ class _$BaseNetworkErrorTypeCopyWithImpl<$Res,
 /// @nodoc
 abstract class _$$RequestErrorImplCopyWith<$Res> {
   factory _$$RequestErrorImplCopyWith(
-          _$RequestErrorImpl value, $Res Function(_$RequestErrorImpl) then) =
-      __$$RequestErrorImplCopyWithImpl<$Res>;
+    _$RequestErrorImpl value,
+    $Res Function(_$RequestErrorImpl) then,
+  ) = __$$RequestErrorImplCopyWithImpl<$Res>;
   @useResult
   $Res call({DioException error});
 }
@@ -99,22 +98,23 @@ class __$$RequestErrorImplCopyWithImpl<$Res>
     extends _$BaseNetworkErrorTypeCopyWithImpl<$Res, _$RequestErrorImpl>
     implements _$$RequestErrorImplCopyWith<$Res> {
   __$$RequestErrorImplCopyWithImpl(
-      _$RequestErrorImpl _value, $Res Function(_$RequestErrorImpl) _then)
-      : super(_value, _then);
+    _$RequestErrorImpl _value,
+    $Res Function(_$RequestErrorImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of BaseNetworkErrorType
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? error = null,
-  }) {
-    return _then(_$RequestErrorImpl(
-      error: null == error
-          ? _value.error
-          : error // ignore: cast_nullable_to_non_nullable
-              as DioException,
-    ));
+  $Res call({Object? error = null}) {
+    return _then(
+      _$RequestErrorImpl(
+        error: null == error
+            ? _value.error
+            : error // ignore: cast_nullable_to_non_nullable
+                  as DioException,
+      ),
+    );
   }
 }
 
@@ -237,8 +237,9 @@ abstract class _RequestError extends BaseNetworkErrorType {
 /// @nodoc
 abstract class _$$TypeErrorImplCopyWith<$Res> {
   factory _$$TypeErrorImplCopyWith(
-          _$TypeErrorImpl value, $Res Function(_$TypeErrorImpl) then) =
-      __$$TypeErrorImplCopyWithImpl<$Res>;
+    _$TypeErrorImpl value,
+    $Res Function(_$TypeErrorImpl) then,
+  ) = __$$TypeErrorImplCopyWithImpl<$Res>;
   @useResult
   $Res call({String? error});
 }
@@ -248,22 +249,23 @@ class __$$TypeErrorImplCopyWithImpl<$Res>
     extends _$BaseNetworkErrorTypeCopyWithImpl<$Res, _$TypeErrorImpl>
     implements _$$TypeErrorImplCopyWith<$Res> {
   __$$TypeErrorImplCopyWithImpl(
-      _$TypeErrorImpl _value, $Res Function(_$TypeErrorImpl) _then)
-      : super(_value, _then);
+    _$TypeErrorImpl _value,
+    $Res Function(_$TypeErrorImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of BaseNetworkErrorType
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? error = freezed,
-  }) {
-    return _then(_$TypeErrorImpl(
-      error: freezed == error
-          ? _value.error
-          : error // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
+  $Res call({Object? error = freezed}) {
+    return _then(
+      _$TypeErrorImpl(
+        error: freezed == error
+            ? _value.error
+            : error // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
   }
 }
 
@@ -385,8 +387,9 @@ abstract class _TypeError extends BaseNetworkErrorType {
 /// @nodoc
 abstract class _$$ConnectivityImplCopyWith<$Res> {
   factory _$$ConnectivityImplCopyWith(
-          _$ConnectivityImpl value, $Res Function(_$ConnectivityImpl) then) =
-      __$$ConnectivityImplCopyWithImpl<$Res>;
+    _$ConnectivityImpl value,
+    $Res Function(_$ConnectivityImpl) then,
+  ) = __$$ConnectivityImplCopyWithImpl<$Res>;
   @useResult
   $Res call({String? error});
 }
@@ -396,22 +399,23 @@ class __$$ConnectivityImplCopyWithImpl<$Res>
     extends _$BaseNetworkErrorTypeCopyWithImpl<$Res, _$ConnectivityImpl>
     implements _$$ConnectivityImplCopyWith<$Res> {
   __$$ConnectivityImplCopyWithImpl(
-      _$ConnectivityImpl _value, $Res Function(_$ConnectivityImpl) _then)
-      : super(_value, _then);
+    _$ConnectivityImpl _value,
+    $Res Function(_$ConnectivityImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of BaseNetworkErrorType
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? error = freezed,
-  }) {
-    return _then(_$ConnectivityImpl(
-      error: freezed == error
-          ? _value.error
-          : error // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
+  $Res call({Object? error = freezed}) {
+    return _then(
+      _$ConnectivityImpl(
+        error: freezed == error
+            ? _value.error
+            : error // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
   }
 }
 
