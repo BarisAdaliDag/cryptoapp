@@ -1,3 +1,6 @@
+import 'package:cryptoapp/app/get_it/get_it.dart';
+import 'package:cryptoapp/presentation/market_detail/view/market_detail_screen.dart';
+import 'package:cryptoapp/presentation/market_detail/viewmodel/market_detail_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cryptoapp/presentation/market/viewmodel/market_list_viewmodel.dart';
@@ -103,29 +106,40 @@ class _TickerListTile extends StatelessWidget {
     final isPriceUp = ticker.isPriceUp;
     final color = isPriceUp ? Colors.green : Colors.red;
 
-    return ticker.lastPriceAsDouble == 0
-        ? const SizedBox.shrink() // Fiyat 0 ise gösterme
-        : ListTile(
-            leading: CircleAvatar(
-              backgroundColor: color.withOpacity(0.2),
-              child: Text(
-                ticker.symbol?.substring(0, 1) ?? '?',
-                style: TextStyle(color: color, fontWeight: FontWeight.bold),
-              ),
+    return ListTile(
+      onTap: () {
+        // ✅ Detay ekranına git
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider(
+              create: (_) =>
+                  MarketDetailViewModel(serviceLocator.tickerRepository, ticker.symbol ?? '')..loadTickerDetail(),
+              child: MarketDetailScreen(initialTicker: ticker),
             ),
-            title: Text(ticker.displaySymbol, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('\$${ticker.lastPriceAsDouble.toStringAsFixed(2)}'),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${isPriceUp ? '+' : ''}${ticker.priceChangePercentAsDouble.toStringAsFixed(2)}%',
-                  style: TextStyle(color: color, fontWeight: FontWeight.bold),
-                ),
-                Text(isPriceUp ? '▲' : '▼', style: TextStyle(color: color)),
-              ],
-            ),
-          );
+          ),
+        );
+      },
+      leading: CircleAvatar(
+        backgroundColor: color.withOpacity(0.2),
+        child: Text(
+          ticker.symbol?.substring(0, 1) ?? '?',
+          style: TextStyle(color: color, fontWeight: FontWeight.bold),
+        ),
+      ),
+      title: Text(ticker.displaySymbol, style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text('\$${ticker.lastPriceAsDouble.toStringAsFixed(2)}'),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            '${isPriceUp ? '+' : ''}${ticker.priceChangePercentAsDouble.toStringAsFixed(2)}%',
+            style: TextStyle(color: color, fontWeight: FontWeight.bold),
+          ),
+          Text(isPriceUp ? '▲' : '▼', style: TextStyle(color: color)),
+        ],
+      ),
+    );
   }
 }

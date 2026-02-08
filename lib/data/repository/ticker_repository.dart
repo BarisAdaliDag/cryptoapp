@@ -2,6 +2,7 @@ import 'package:cryptoapp/app/client/network/base/api_error.dart';
 import 'package:cryptoapp/app/client/network/base/base_network_type_def.dart';
 import 'package:cryptoapp/app/client/result/result.dart';
 import 'package:cryptoapp/data/models/mini_ticker_model.dart';
+import 'package:cryptoapp/data/models/symbol_ticker_model.dart';
 import 'package:cryptoapp/data/models/ticker_model.dart';
 import 'package:cryptoapp/data/repository/i_ticker_repository.dart';
 import 'package:cryptoapp/data/services/binance_websocket_service.dart';
@@ -22,9 +23,16 @@ class TickerRepository extends ITickerRepository {
         final usdtPairs = data.where((ticker) => ticker.symbol?.endsWith('USDT') ?? false).toList();
         return Result.success(usdtPairs);
       },
-      failure: (error) {
-        return Result.failure(error.handleApiError);
-      },
+      failure: (error) => Result.failure(error.handleApiError),
+    );
+  }
+
+  @override
+  ResultDecode<TickerModel, APIError> getTickerBySymbol(String symbol) async {
+    final response = await binanceService.getTickerBySymbol(symbol: symbol);
+    return response.when(
+      success: (data) => Result.success(data),
+      failure: (error) => Result.failure(error.handleApiError),
     );
   }
 
@@ -48,7 +56,17 @@ class TickerRepository extends ITickerRepository {
   }
 
   @override
+  Stream<SymbolTickerModel> getSymbolRealtimeUpdates(String symbol) {
+    return websocketService.connectToSymbolTicker(symbol);
+  }
+
+  @override
   void closeWebSocket() {
-    websocketService.disconnect();
+    websocketService.disconnectAllMarkets();
+  }
+
+  @override
+  void closeSymbolWebSocket(String symbol) {
+    websocketService.disconnectSymbol(symbol);
   }
 }
