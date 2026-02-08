@@ -2,8 +2,6 @@ import 'package:cryptoapp/data/models/mini_ticker_model.dart';
 import 'package:cryptoapp/data/models/symbol_ticker_model.dart';
 
 abstract class IBinanceWebSocketService {
-  bool get isConnected;
-
   /// Tüm marketler için mini ticker stream
   Stream<List<MiniTickerModel>> connectToMiniTickerStream();
 
