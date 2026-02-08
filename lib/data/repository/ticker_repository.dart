@@ -6,6 +6,7 @@ import 'package:cryptoapp/data/models/ticker_model.dart';
 import 'package:cryptoapp/data/repository/i_ticker_repository.dart';
 import 'package:cryptoapp/data/services/binance_websocket_service.dart';
 import 'package:cryptoapp/data/services/i_binance_service.dart';
+import 'package:flutter/widgets.dart';
 
 class TickerRepository extends ITickerRepository {
   TickerRepository({required this.binanceService, required this.websocketService});
@@ -21,7 +22,9 @@ class TickerRepository extends ITickerRepository {
         final usdtPairs = data.where((ticker) => ticker.symbol?.endsWith('USDT') ?? false).toList();
         return Result.success(usdtPairs);
       },
-      failure: (error) => Result.failure(error.handleApiError),
+      failure: (error) {
+        return Result.failure(error.handleApiError);
+      },
     );
   }
 

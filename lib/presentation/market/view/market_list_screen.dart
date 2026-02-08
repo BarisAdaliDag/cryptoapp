@@ -1,7 +1,7 @@
-import 'package:cryptoapp/data/models/ticker_model.dart';
-import 'package:cryptoapp/presentation/market/viewmodel/market_list_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cryptoapp/presentation/market/viewmodel/market_list_viewmodel.dart';
+import 'package:cryptoapp/data/models/ticker_model.dart';
 
 class MarketListScreen extends StatelessWidget {
   const MarketListScreen({super.key});
@@ -20,18 +20,36 @@ class MarketListScreen extends StatelessWidget {
         builder: (context, viewModel, child) {
           // Loading
           if (viewModel.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [CircularProgressIndicator(), SizedBox(height: 16), Text('Veriler yükleniyor...')],
+              ),
+            );
           }
 
           // Error
           if (viewModel.hasError) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(viewModel.error ?? 'Hata'),
-                  ElevatedButton(onPressed: viewModel.loadTickers, child: const Text('Tekrar Dene')),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error, size: 64, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text('Bir hata oluştu', textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: viewModel.loadTickers,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Tekrar Dene'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }

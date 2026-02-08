@@ -68,12 +68,21 @@ class InfoList {
 extension ApiErrorHandle on BaseNetworkErrorType {
   APIError get handleApiError => when(
     request: (error) {
-      final data = error.response?.data as Map<String, dynamic>;
-      return APIError.fromJson(data);
+      final data = error.response?.data;
+
+      if (data is Map<String, dynamic>) {
+        return APIError.fromJson(data);
+      }
+
+      return APIError(
+        meta: APIMeta(infoList: [InfoList(message: error.message ?? 'Sunucuya bağlanılamadı')]),
+      );
     },
-    type: (error) => APIError(),
+    type: (error) => APIError(
+      meta: APIMeta(infoList: [InfoList(message: 'Veri işleme hatası')]),
+    ),
     connectivity: (error) => APIError(
-      meta: APIMeta(infoList: [InfoList(message: "Internet Bağlantınız bulunmamaktadır")]),
+      meta: APIMeta(infoList: [InfoList(message: 'İnternet bağlantınız bulunmamaktadır')]),
     ),
   );
 }

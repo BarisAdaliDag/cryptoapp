@@ -36,10 +36,10 @@ class MarketListViewModel extends ChangeNotifier {
       success: (data) {
         _tickers = data;
         _filteredTickers = data;
-        _startRealtimeUpdates(); // WebSocket'i başlat
+        _startRealtimeUpdates(); // WebSocket başlat
       },
       failure: (error) {
-        _error = error.meta?.infoList?.first.message ?? 'Bir hata oluştu';
+        _error = error.meta?.infoList?.first.message ?? 'Bir hata oluştu.';
       },
     );
 
@@ -62,7 +62,7 @@ class MarketListViewModel extends ChangeNotifier {
 
   /// WebSocket stream'ini dinle ve merge et
   void _startRealtimeUpdates() {
-    _wsSubscription?.cancel(); // Önceki subscription varsa iptal et
+    _wsSubscription?.cancel();
 
     _wsSubscription = _repository.getRealtimeUpdates().listen(
       (miniTickers) {
@@ -85,8 +85,8 @@ class MarketListViewModel extends ChangeNotifier {
         notifyListeners();
       },
       onError: (error) {
-        _error = 'WebSocket bağlantısı kesildi';
-        notifyListeners();
+        // WebSocket kesildi ama REST data var, göz ardı et
+        debugPrint('WebSocket error (ignored): $error');
       },
     );
   }
