@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cryptoapp/app/client/network/interceptors/logging_interceptor.dart';
 import 'package:cryptoapp/app/client/result/result.dart';
 import 'package:dio/dio.dart';
 import '../base/base_network_error_type.dart';
@@ -40,7 +41,31 @@ class NetworkManager extends NetworkManagerProtocol {
     this.reciveTimeOut,
     this.sendTimeOut,
     this.connectionTimeOut,
-  });
+  }) {
+    // ✅ Constructor'da interceptor'ları ekle
+    _setupInterceptors();
+  }
+
+  // ✅ YENİ: Interceptor setup metodu
+  void _setupInterceptors() {
+    if (isLog == true) {
+      _dio.interceptors.add(LoggingInterceptor(isEnabled: true));
+    }
+
+    // Auth interceptor (her zaman ekle)
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (request, handler) {
+          if (authToken != null) {
+            request.headers['Authorization'] = 'Bearer $authToken';
+          }
+          request.headers['Accept'] = 'application/json, text/plain, */*';
+          request.headers['Content-Type'] = 'application/json';
+          handler.next(request);
+        },
+      ),
+    );
+  }
 
   @override
   NetworkManagerProtocol setContentType({required RequestContentTypeEnum contentTypeEnum}) {
