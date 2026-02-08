@@ -2,13 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:cryptoapp/data/models/mini_ticker_model.dart';
 import 'package:cryptoapp/data/models/symbol_ticker_model.dart';
+import 'package:cryptoapp/data/services/i_binance_websocket_service.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-class BinanceWebSocketService {
+class BinanceWebSocketService implements IBinanceWebSocketService {
   // ================== TÜM MARKETLER (Liste Ekranı) ==================
   WebSocketChannel? _allMarketsChannel;
   StreamController<List<MiniTickerModel>>? _allMarketsController;
 
+  @override
   Stream<List<MiniTickerModel>> connectToMiniTickerStream() {
     if (_allMarketsController != null && !_allMarketsController!.isClosed) {
       return _allMarketsController!.stream;
@@ -49,6 +51,7 @@ class BinanceWebSocketService {
     return _allMarketsController!.stream;
   }
 
+  @override
   void disconnectAllMarkets() {
     _allMarketsChannel?.sink.close();
     _allMarketsChannel = null;
@@ -56,15 +59,14 @@ class BinanceWebSocketService {
     _allMarketsController = null;
   }
 
-  // ================== TEK SYMBOL (Detay Ekranı) - BİDPRİCE/ASKPRICE VAR ==================
+  // ================== TEK SYMBOL (Detay Ekranı) ==================
   final Map<String, WebSocketChannel> _symbolChannels = {};
   final Map<String, StreamController<SymbolTickerModel>> _symbolControllers = {};
 
-  ///  Tek symbol için detaylı ticker stream (bidPrice/askPrice dahil)
+  @override
   Stream<SymbolTickerModel> connectToSymbolTicker(String symbol) {
     final lowerSymbol = symbol.toLowerCase();
 
-    // Zaten bağlıysa mevcut stream'i döndür
     if (_symbolControllers.containsKey(lowerSymbol) && !_symbolControllers[lowerSymbol]!.isClosed) {
       return _symbolControllers[lowerSymbol]!.stream;
     }
@@ -106,6 +108,7 @@ class BinanceWebSocketService {
     return _symbolControllers[lowerSymbol]!.stream;
   }
 
+  @override
   void disconnectSymbol(String symbol) {
     final lowerSymbol = symbol.toLowerCase();
     _symbolChannels[lowerSymbol]?.sink.close();
@@ -114,6 +117,7 @@ class BinanceWebSocketService {
     _symbolControllers.remove(lowerSymbol);
   }
 
+  @override
   void dispose() {
     disconnectAllMarkets();
     for (var channel in _symbolChannels.values) {

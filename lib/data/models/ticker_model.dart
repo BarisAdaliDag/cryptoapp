@@ -45,4 +45,28 @@ class TickerModel with _$TickerModel implements BaseResponseModel<TickerModel> {
   double get lastPriceAsDouble => double.tryParse(lastPrice ?? '0') ?? 0;
 
   double get priceChangePercentAsDouble => double.tryParse(priceChangePercent ?? '0') ?? 0;
+
+  factory TickerModel.empty() => const TickerModel(
+    symbol: '',
+    priceChange: '',
+    priceChangePercent: '',
+    weightedAvgPrice: '',
+    prevClosePrice: '',
+    lastPrice: '',
+    lastQty: '',
+    bidPrice: '',
+    bidQty: '',
+    askPrice: '',
+    askQty: '',
+    openPrice: '',
+    highPrice: '',
+    lowPrice: '',
+    volume: '',
+    quoteVolume: '',
+    openTime: 0,
+    closeTime: 0,
+    firstId: 0,
+    lastId: 0,
+    count: 0,
+  );
 }

@@ -5,15 +5,14 @@ import 'package:cryptoapp/data/models/mini_ticker_model.dart';
 import 'package:cryptoapp/data/models/symbol_ticker_model.dart';
 import 'package:cryptoapp/data/models/ticker_model.dart';
 import 'package:cryptoapp/data/repository/i_ticker_repository.dart';
-import 'package:cryptoapp/data/services/binance_websocket_service.dart';
 import 'package:cryptoapp/data/services/i_binance_service.dart';
-import 'package:flutter/widgets.dart';
+import 'package:cryptoapp/data/services/i_binance_websocket_service.dart';
 
 class TickerRepository extends ITickerRepository {
-  TickerRepository({required this.binanceService, required this.websocketService});
-
   final IBinanceService binanceService;
-  final BinanceWebSocketService websocketService;
+  final IBinanceWebSocketService websocketService;
+
+  TickerRepository({required this.binanceService, required this.websocketService});
 
   @override
   ResultDecode<List<TickerModel>, APIError> getAllTickers() async {

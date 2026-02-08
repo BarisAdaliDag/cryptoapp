@@ -9,69 +9,19 @@ class BinanceService extends IBinanceService {
   @override
   ResultDecode<List<TickerModel>, BaseNetworkErrorType> get24hrTickers() async {
     final client = BinanceNetworkClient.client();
-    final response = await client
+    return await client
         .setRequestMethod(requestMethodEnum: RequestMethodEnum.GET)
         .setPath(path: '/api/v3/ticker/24hr')
-        .execute<TickerModel, List<TickerModel>>(
-          const TickerModel(
-            symbol: '',
-            priceChange: '',
-            priceChangePercent: '',
-            weightedAvgPrice: '',
-            prevClosePrice: '',
-            lastPrice: '',
-            lastQty: '',
-            bidPrice: '',
-            bidQty: '',
-            askPrice: '',
-            askQty: '',
-            openPrice: '',
-            highPrice: '',
-            lowPrice: '',
-            volume: '',
-            quoteVolume: '',
-            openTime: 0,
-            closeTime: 0,
-            firstId: 0,
-            lastId: 0,
-            count: 0,
-          ),
-        );
-    return response;
+        .execute<TickerModel, List<TickerModel>>(TickerModel.empty());
   }
 
   @override
   ResultDecode<TickerModel, BaseNetworkErrorType> getTickerBySymbol({required String symbol}) async {
     final client = BinanceNetworkClient.client();
-    final response = await client
+    return await client
         .setRequestMethod(requestMethodEnum: RequestMethodEnum.GET)
         .setPath(path: '/api/v3/ticker/24hr')
         .setQueryParameters(queryParameters: {'symbol': symbol.toUpperCase()})
-        .execute<TickerModel, TickerModel>(
-          const TickerModel(
-            symbol: '',
-            priceChange: '',
-            priceChangePercent: '',
-            weightedAvgPrice: '',
-            prevClosePrice: '',
-            lastPrice: '',
-            lastQty: '',
-            bidPrice: '',
-            bidQty: '',
-            askPrice: '',
-            askQty: '',
-            openPrice: '',
-            highPrice: '',
-            lowPrice: '',
-            volume: '',
-            quoteVolume: '',
-            openTime: 0,
-            closeTime: 0,
-            firstId: 0,
-            lastId: 0,
-            count: 0,
-          ),
-        );
-    return response;
+        .execute<TickerModel, TickerModel>(TickerModel.empty());
   }
 }
