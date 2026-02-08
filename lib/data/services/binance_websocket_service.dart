@@ -4,38 +4,127 @@ import 'dart:io';
 import 'package:cryptoapp/data/models/mini_ticker_model.dart';
 import 'package:cryptoapp/data/models/symbol_ticker_model.dart';
 import 'package:cryptoapp/data/services/i_binance_websocket_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class BinanceWebSocketService implements IBinanceWebSocketService {
-  final String wsUrl = 'wss://stream.binance.com:9443/ws';
+  // ================== ALL MARKETS CONNECTION (Ayrı) ==================
+  WebSocketChannel? _allMarketsChannel;
+  StreamController<List<MiniTickerModel>>? _allMarketsController;
 
-  // ================== CONNECTION STATE ==================
+  // ================== SINGLE SYMBOL CONNECTION (Ana) ==================
   WebSocketChannel? _channel;
+  final Map<String, StreamController<SymbolTickerModel>> _symbolControllers = {};
 
   @override
   bool get isConnected => _channel != null && _channel!.closeCode == null;
 
   int _reconnectAttempts = 0;
 
-  // ================== STREAM CONTROLLERS ==================
-  StreamController<List<MiniTickerModel>>? _allMarketsController;
-  final Map<String, StreamController<SymbolTickerModel>> _symbolControllers = {};
-
   // ================== REQUEST TRACKING ==================
   final Map<int, Completer<bool>> _pendingRequests = {};
   final Set<String> _activeStreams = {};
 
-  // ================== CONNECT ==================
+  // ================== ALL MARKETS STREAM ==================
+  @override
+  Stream<List<MiniTickerModel>> connectToMiniTickerStream() {
+    if (_allMarketsController != null && !_allMarketsController!.isClosed) {
+      return _allMarketsController!.stream;
+    }
+
+    _allMarketsController = StreamController<List<MiniTickerModel>>.broadcast();
+
+    // ✅ Ayrı bir WebSocket connection aç (tüm marketler için)
+    _allMarketsChannel = WebSocketChannel.connect(Uri.parse('wss://stream.binance.com:9443/ws/!miniTicker@arr'));
+
+    print('🔌 Connecting to all markets mini ticker stream...');
+
+    _allMarketsChannel!.stream.listen(
+      (data) {
+        try {
+          if (data is! String) return;
+
+          final decoded = jsonDecode(data);
+
+          if (decoded is List) {
+            final miniTickers = decoded.map((item) => MiniTickerModel.fromJson(item as Map<String, dynamic>)).toList();
+
+            print('✅ Received ${miniTickers.length} mini tickers');
+
+            if (_allMarketsController != null && !_allMarketsController!.isClosed) {
+              _allMarketsController!.add(miniTickers);
+            }
+          }
+        } catch (e) {
+          print('❌ MiniTicker parse error: $e');
+        }
+      },
+      onError: (error) {
+        print('❌ MiniTicker error: $error');
+      },
+      onDone: () {
+        print('🔌 MiniTicker connection closed');
+      },
+    );
+
+    return _allMarketsController!.stream;
+  }
+
+  @override
+  void disconnectAllMarkets() {
+    _allMarketsChannel?.sink.close();
+    _allMarketsChannel = null;
+    _allMarketsController?.close();
+    _allMarketsController = null;
+    print('🔌 All markets connection closed');
+  }
+
+  // ================== SINGLE SYMBOL STREAM ==================
+  @override
+  Stream<SymbolTickerModel> connectToSymbolTicker(String symbol) {
+    final lowerSymbol = symbol.toLowerCase();
+
+    if (_symbolControllers.containsKey(lowerSymbol) && !_symbolControllers[lowerSymbol]!.isClosed) {
+      return _symbolControllers[lowerSymbol]!.stream;
+    }
+
+    _symbolControllers[lowerSymbol] = StreamController<SymbolTickerModel>.broadcast();
+
+    // Ana connection'ı başlat (henüz başlamamışsa)
+    if (!isConnected) {
+      _connect();
+    }
+
+    // Subscribe request gönder
+    final streamName = '$lowerSymbol@ticker';
+    final request = {
+      'id': DateTime.now().millisecondsSinceEpoch,
+      'method': 'SUBSCRIBE',
+      'params': [streamName],
+    };
+
+    Future.delayed(Duration(milliseconds: 500), () {
+      _sendRequest(request);
+    });
+
+    return _symbolControllers[lowerSymbol]!.stream;
+  }
+
+  // ================== MAIN CONNECTION (Symbol-specific için) ==================
   @override
   void connect() {
+    _connect();
+  }
+
+  void _connect() {
     if (_channel != null) return;
 
-    _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
+    _channel = WebSocketChannel.connect(Uri.parse('wss://stream.binance.com:9443/ws'));
+
+    print('🔌 Connecting to symbol-specific stream...');
+
     _channel!.stream.listen(_onEvent, onError: _onError, onDone: _onDone);
   }
 
-  // ================== EVENT HANDLING ==================
   void _onEvent(dynamic event) {
     if (event is! String) return;
 
@@ -43,66 +132,50 @@ class BinanceWebSocketService implements IBinanceWebSocketService {
       final decodedEvent = jsonDecode(event);
 
       if (decodedEvent is Map<String, dynamic>) {
-        // Ping-Pong Keep-Alive
+        // Ping-Pong
         if (decodedEvent.containsKey('ping')) {
           _handlePingResponse();
           return;
         }
 
-        // ACK Handling
+        // ACK
         if (decodedEvent.containsKey('id')) {
           _handleAckEvent(decodedEvent);
           return;
         }
 
-        // Event Type Routing
+        // Event routing
         final eventType = decodedEvent['e'];
-        switch (eventType) {
-          case '24hrMiniTicker':
-            if (_allMarketsController != null && !_allMarketsController!.isClosed) {}
-            break;
+        if (eventType == '24hrTicker') {
+          final symbol = decodedEvent['s'] as String;
+          final lowerSymbol = symbol.toLowerCase();
 
-          case '24hrTicker':
-            // For detail screen (single symbol)
-            final symbol = decodedEvent['s'] as String;
-            final lowerSymbol = symbol.toLowerCase();
-
-            if (_symbolControllers.containsKey(lowerSymbol) && !_symbolControllers[lowerSymbol]!.isClosed) {
-              final ticker = SymbolTickerModel.fromJson(decodedEvent);
-              _symbolControllers[lowerSymbol]!.add(ticker);
-            }
-            break;
-        }
-      } else if (decodedEvent is List) {
-        // For all markets (if array is received)
-        if (_allMarketsController != null && !_allMarketsController!.isClosed) {
-          final miniTickers = decodedEvent
-              .map((item) => MiniTickerModel.fromJson(item as Map<String, dynamic>))
-              .toList();
-          _allMarketsController!.add(miniTickers);
+          if (_symbolControllers.containsKey(lowerSymbol) && !_symbolControllers[lowerSymbol]!.isClosed) {
+            final ticker = SymbolTickerModel.fromJson(decodedEvent);
+            print('✅ Received ticker update for $symbol: ${ticker.lastPrice}');
+            _symbolControllers[lowerSymbol]!.add(ticker);
+          }
         }
       }
     } catch (e) {
-      debugPrint('JSON decode error: $e');
+      print('❌ JSON decode error: $e');
     }
   }
 
-  //  Ping-Pong Keep-Alive
   void _handlePingResponse() {
     _channel?.sink.add(jsonEncode({'pong': DateTime.now().millisecondsSinceEpoch}));
   }
 
-  //   ACK Handling
   void _handleAckEvent(Map<String, dynamic> response) {
     final requestId = response['id'];
     final completer = _pendingRequests.remove(requestId);
 
     if (completer != null) {
       if (response.containsKey('code')) {
-        debugPrint(" Subscribe Error: ${response['msg']} (Code: ${response['code']})");
+        print("❌ Subscribe Error: ${response['msg']} (Code: ${response['code']})");
         completer.complete(false);
       } else if (response.containsKey('result')) {
-        debugPrint(" Subscribe Success");
+        print("✅ Subscribe Success");
         completer.complete(response['result'] == null);
       } else {
         completer.complete(false);
@@ -110,68 +183,9 @@ class BinanceWebSocketService implements IBinanceWebSocketService {
     }
   }
 
-  // ================== ERROR HANDLING ==================
-  void _onError(dynamic error) {
-    debugPrint('WebSocket error: $error');
-
-    if (error is WebSocketChannelException || error is SocketException) {
-      debugPrint("Network error detected, reconnecting...");
-      reconnect();
-    } else if (error is HttpException && error.message.contains("403")) {
-      debugPrint("Access denied (403 Forbidden)");
-    } else {
-      debugPrint("Unknown error: $error");
-    }
-  }
-
-  void _onDone() {
-    debugPrint("Connection closed: ${_channel?.closeReason ?? 'Unknown'}");
-
-    if (_channel?.closeCode != 1000) {
-      // 1000 = Normal closure
-      reconnect();
-    }
-  }
-
-  // Reconnect Logic
-  @override
-  void reconnect() async {
-    disconnect();
-
-    if (_reconnectAttempts >= 5) {
-      debugPrint("❌ Max reconnection attempts (5) reached");
-      return;
-    }
-
-    debugPrint("🔄 Reconnecting (${_reconnectAttempts + 1}/5)...");
-    _reconnectAttempts++;
-
-    // Exponential backoff
-    await Future.delayed(Duration(seconds: 2 * _reconnectAttempts));
-
-    connect();
-
-    if (isConnected) {
-      _reconnectAttempts = 0;
-      debugPrint("✅ Reconnected successfully");
-
-      // Resubscribe to active streams
-      if (_activeStreams.isNotEmpty) {
-        debugPrint("🔄 Resubscribing to ${_activeStreams.length} streams...");
-        final request = {
-          'id': DateTime.now().millisecondsSinceEpoch,
-          'method': 'SUBSCRIBE',
-          'params': _activeStreams.toList(),
-        };
-        await _sendRequest(request);
-      }
-    }
-  }
-
-  // ================== SEND REQUEST ==================
   Future<bool> _sendRequest(Map<String, dynamic> request) async {
     if (!isConnected) {
-      debugPrint("⚠️ WebSocket not connected");
+      print("❌ WebSocket not connected");
       return false;
     }
 
@@ -181,7 +195,6 @@ class BinanceWebSocketService implements IBinanceWebSocketService {
 
     final isSuccess = await completer.future;
 
-    // Track active streams
     if (isSuccess && request.containsKey('params')) {
       final streamNames = request['params'] as List;
       if (request['method'] == 'SUBSCRIBE') {
@@ -194,55 +207,70 @@ class BinanceWebSocketService implements IBinanceWebSocketService {
     return isSuccess;
   }
 
-  // ================== ALL MARKETS (List Screen) ==================
-  @override
-  Stream<List<MiniTickerModel>> connectToMiniTickerStream() {
-    if (_allMarketsController != null && !_allMarketsController!.isClosed) {
-      return _allMarketsController!.stream;
+  // ================== ERROR HANDLING ==================
+  void _onError(dynamic error) {
+    print('❌ WebSocket error: $error');
+
+    if (error is WebSocketChannelException || error is SocketException) {
+      reconnect();
     }
+  }
 
-    _allMarketsController = StreamController<List<MiniTickerModel>>.broadcast();
+  void _onDone() {
+    print("🔌 Connection closed");
 
-    return _allMarketsController!.stream;
+    if (_channel?.closeCode != 1000) {
+      reconnect();
+    }
   }
 
   @override
-  void disconnectAllMarkets() {
-    _allMarketsController?.close();
-    _allMarketsController = null;
-  }
+  void reconnect() async {
+    disconnect();
 
-  // ================== SINGLE SYMBOL (Detail Screen) ==================
-  @override
-  Stream<SymbolTickerModel> connectToSymbolTicker(String symbol) {
-    final lowerSymbol = symbol.toLowerCase();
-
-    // Return existing stream if it already exists
-    if (_symbolControllers.containsKey(lowerSymbol) && !_symbolControllers[lowerSymbol]!.isClosed) {
-      return _symbolControllers[lowerSymbol]!.stream;
+    if (_reconnectAttempts >= 5) {
+      print("❌ Max reconnection attempts reached");
+      return;
     }
 
-    // Create new controller
-    _symbolControllers[lowerSymbol] = StreamController<SymbolTickerModel>.broadcast();
+    print("🔄 Reconnecting (${_reconnectAttempts + 1}/5)...");
+    _reconnectAttempts++;
+    await Future.delayed(Duration(seconds: 2 * _reconnectAttempts));
 
-    // Send subscribe request
-    final streamName = '$lowerSymbol@ticker';
-    final request = {
-      'id': DateTime.now().millisecondsSinceEpoch,
-      'method': 'SUBSCRIBE',
-      'params': [streamName],
-    };
+    _connect();
 
-    _sendRequest(request);
+    if (isConnected) {
+      _reconnectAttempts = 0;
+      print("✅ Reconnected");
 
-    return _symbolControllers[lowerSymbol]!.stream;
+      if (_activeStreams.isNotEmpty) {
+        final request = {
+          'id': DateTime.now().millisecondsSinceEpoch,
+          'method': 'SUBSCRIBE',
+          'params': _activeStreams.toList(),
+        };
+        await _sendRequest(request);
+      }
+    }
+  }
+
+  @override
+  void disconnect() {
+    for (final completer in _pendingRequests.values) {
+      if (!completer.isCompleted) {
+        completer.complete(false);
+      }
+    }
+    _pendingRequests.clear();
+    _activeStreams.clear();
+    _channel?.sink.close();
+    _channel = null;
   }
 
   @override
   void disconnectSymbol(String symbol) {
     final lowerSymbol = symbol.toLowerCase();
 
-    // Send unsubscribe request
     final request = {
       'id': DateTime.now().millisecondsSinceEpoch,
       'method': 'UNSUBSCRIBE',
@@ -251,35 +279,13 @@ class BinanceWebSocketService implements IBinanceWebSocketService {
 
     _sendRequest(request);
 
-    // Close controller
     _symbolControllers[lowerSymbol]?.close();
     _symbolControllers.remove(lowerSymbol);
   }
 
-  // ================== DISCONNECT ==================
-  @override
-  void disconnect() {
-    // Cancel pending requests
-    for (final completer in _pendingRequests.values) {
-      if (!completer.isCompleted) {
-        completer.complete(false);
-      }
-    }
-    _pendingRequests.clear();
-
-    // Clear active streams
-    _activeStreams.clear();
-
-    // Close channel
-    _channel?.sink.close();
-    _channel = null;
-  }
-
-  // ================== DISPOSE ==================
   @override
   void dispose() {
     disconnect();
-
     disconnectAllMarkets();
 
     for (var controller in _symbolControllers.values) {
