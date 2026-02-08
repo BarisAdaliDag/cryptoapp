@@ -44,15 +44,12 @@ class MarketDetailViewModel extends ChangeNotifier {
     _setLoading(false);
   }
 
-  /// Yenile
   Future<void> refresh() async {
     await loadTickerDetail();
   }
 
   // ===================== PRIVATE METHODS =====================
 
-  /// WebSocket stream'ini dinle ve güncelle
-  /// ✅ Bu stream bidPrice ve askPrice içerir!
   void _startRealtimeUpdates() {
     _wsSubscription?.cancel();
 
@@ -60,7 +57,6 @@ class MarketDetailViewModel extends ChangeNotifier {
         .getSymbolRealtimeUpdates(symbol)
         .listen(
           (symbolTicker) {
-            // SymbolTickerModel → TickerModel dönüşümü
             _ticker = symbolTicker.toTickerModel();
             notifyListeners();
           },

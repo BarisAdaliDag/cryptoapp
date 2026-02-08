@@ -25,7 +25,7 @@ class MarketListViewModel extends ChangeNotifier {
 
   // ===================== PUBLIC METHODS =====================
 
-  /// İlk yükleme: REST API'den tüm ticker'ları çek
+  /// first load: fetch tickers from REST API
   Future<void> loadTickers() async {
     _setLoading(true);
     _error = null;
@@ -36,7 +36,7 @@ class MarketListViewModel extends ChangeNotifier {
       success: (data) {
         _tickers = data;
         _filteredTickers = data;
-        _startRealtimeUpdates(); // WebSocket başlat
+        _startRealtimeUpdates(); // WebSocket
       },
       failure: (error) {
         _error = error.meta?.infoList?.first.message ?? 'Bir hata oluştu.';
@@ -46,27 +46,26 @@ class MarketListViewModel extends ChangeNotifier {
     _setLoading(false);
   }
 
-  /// Arama
   void searchTickers(String query) {
     _searchQuery = query;
     _filteredTickers = _repository.searchTickers(tickers: _tickers, query: query);
     notifyListeners();
   }
 
-  /// Yenile (pull-to-refresh)
+  ///  (pull-to-refresh)
   Future<void> refresh() async {
     await loadTickers();
   }
 
   // ===================== PRIVATE METHODS =====================
 
-  /// WebSocket stream'ini dinle ve merge et
+  /// WebSocket stream listen and update
   void _startRealtimeUpdates() {
     _wsSubscription?.cancel();
 
     _wsSubscription = _repository.getRealtimeUpdates().listen(
       (miniTickers) {
-        // Her bir WebSocket güncellemesini mevcut listeye uygula
+        // Apply each WebSocket update to the current list
         for (final miniTicker in miniTickers) {
           final index = _tickers.indexWhere((t) => t.symbol == miniTicker.symbol);
 
@@ -75,7 +74,6 @@ class MarketListViewModel extends ChangeNotifier {
           }
         }
 
-        // Arama aktifse filtreyi tekrar uygula
         if (_searchQuery.isNotEmpty) {
           _filteredTickers = _repository.searchTickers(tickers: _tickers, query: _searchQuery);
         } else {
@@ -85,7 +83,6 @@ class MarketListViewModel extends ChangeNotifier {
         notifyListeners();
       },
       onError: (error) {
-        // WebSocket kesildi ama REST data var, göz ardı et
         debugPrint('WebSocket error (ignored): $error');
       },
     );

@@ -108,7 +108,6 @@ class _TickerListTile extends StatelessWidget {
 
     return ListTile(
       onTap: () {
-        // ✅ Detay ekranına git
         Navigator.push(
           context,
           MaterialPageRoute(

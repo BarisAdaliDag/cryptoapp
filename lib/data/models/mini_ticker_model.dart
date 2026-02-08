@@ -23,11 +23,11 @@ class MiniTickerModel with _$MiniTickerModel implements BaseResponseModel<MiniTi
 
   factory MiniTickerModel.fromJson(Map<String, dynamic> json) => _$MiniTickerModelFromJson(json);
 
-  // ✅ BaseResponseModel implementation
+  //  BaseResponseModel implementation
   @override
   MiniTickerModel fromJson(Map<String, dynamic> json) => _$MiniTickerModelFromJson(json);
 
-  // WebSocket → REST model conversion (merge için)
+  // WebSocket → REST model conversion (merge )
   TickerModel toTickerModel() {
     final priceChange = (double.tryParse(closePrice) ?? 0) - (double.tryParse(openPrice) ?? 0);
     final priceChangePercent = (priceChange / (double.tryParse(openPrice) ?? 1)) * 100;
