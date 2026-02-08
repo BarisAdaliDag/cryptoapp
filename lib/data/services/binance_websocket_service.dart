@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cryptoapp/data/models/mini_ticker_model.dart';
 import 'package:cryptoapp/data/models/symbol_ticker_model.dart';
 import 'package:cryptoapp/data/services/i_binance_websocket_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class BinanceWebSocketService implements IBinanceWebSocketService {
@@ -82,7 +83,7 @@ class BinanceWebSocketService implements IBinanceWebSocketService {
         }
       }
     } catch (e) {
-      print('JSON decode error: $e');
+      debugPrint('JSON decode error: $e');
     }
   }
 
@@ -98,10 +99,10 @@ class BinanceWebSocketService implements IBinanceWebSocketService {
 
     if (completer != null) {
       if (response.containsKey('code')) {
-        print(" Subscribe Error: ${response['msg']} (Code: ${response['code']})");
+        debugPrint(" Subscribe Error: ${response['msg']} (Code: ${response['code']})");
         completer.complete(false);
       } else if (response.containsKey('result')) {
-        print(" Subscribe Success");
+        debugPrint(" Subscribe Success");
         completer.complete(response['result'] == null);
       } else {
         completer.complete(false);
@@ -111,20 +112,20 @@ class BinanceWebSocketService implements IBinanceWebSocketService {
 
   // ================== ERROR HANDLING ==================
   void _onError(dynamic error) {
-    print('WebSocket error: $error');
+    debugPrint('WebSocket error: $error');
 
     if (error is WebSocketChannelException || error is SocketException) {
-      print("Network error detected, reconnecting...");
+      debugPrint("Network error detected, reconnecting...");
       reconnect();
     } else if (error is HttpException && error.message.contains("403")) {
-      print("Access denied (403 Forbidden)");
+      debugPrint("Access denied (403 Forbidden)");
     } else {
-      print("Unknown error: $error");
+      debugPrint("Unknown error: $error");
     }
   }
 
   void _onDone() {
-    print("Connection closed: ${_channel?.closeReason ?? 'Unknown'}");
+    debugPrint("Connection closed: ${_channel?.closeReason ?? 'Unknown'}");
 
     if (_channel?.closeCode != 1000) {
       // 1000 = Normal closure
@@ -138,11 +139,11 @@ class BinanceWebSocketService implements IBinanceWebSocketService {
     disconnect();
 
     if (_reconnectAttempts >= 5) {
-      print("❌ Max reconnection attempts (5) reached");
+      debugPrint("❌ Max reconnection attempts (5) reached");
       return;
     }
 
-    print("🔄 Reconnecting (${_reconnectAttempts + 1}/5)...");
+    debugPrint("🔄 Reconnecting (${_reconnectAttempts + 1}/5)...");
     _reconnectAttempts++;
 
     // Exponential backoff
@@ -152,11 +153,11 @@ class BinanceWebSocketService implements IBinanceWebSocketService {
 
     if (isConnected) {
       _reconnectAttempts = 0;
-      print("✅ Reconnected successfully");
+      debugPrint("✅ Reconnected successfully");
 
       // Resubscribe to active streams
       if (_activeStreams.isNotEmpty) {
-        print("🔄 Resubscribing to ${_activeStreams.length} streams...");
+        debugPrint("🔄 Resubscribing to ${_activeStreams.length} streams...");
         final request = {
           'id': DateTime.now().millisecondsSinceEpoch,
           'method': 'SUBSCRIBE',
@@ -170,7 +171,7 @@ class BinanceWebSocketService implements IBinanceWebSocketService {
   // ================== SEND REQUEST ==================
   Future<bool> _sendRequest(Map<String, dynamic> request) async {
     if (!isConnected) {
-      print("⚠️ WebSocket not connected");
+      debugPrint("⚠️ WebSocket not connected");
       return false;
     }
 
