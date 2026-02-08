@@ -60,15 +60,12 @@ class MarketListScreen extends StatelessWidget {
           }
 
           // List
-          return RefreshIndicator(
-            onRefresh: viewModel.refresh,
-            child: ListView.builder(
-              itemCount: viewModel.tickers.length,
-              itemBuilder: (context, index) {
-                final ticker = viewModel.tickers[index];
-                return _TickerListTile(ticker: ticker);
-              },
-            ),
+          return ListView.builder(
+            itemCount: viewModel.tickers.length,
+            itemBuilder: (context, index) {
+              final ticker = viewModel.tickers[index];
+              return _TickerListTile(ticker: ticker);
+            },
           );
         },
       ),
@@ -106,27 +103,29 @@ class _TickerListTile extends StatelessWidget {
     final isPriceUp = ticker.isPriceUp;
     final color = isPriceUp ? Colors.green : Colors.red;
 
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: color.withOpacity(0.2),
-        child: Text(
-          ticker.symbol?.substring(0, 1) ?? '?',
-          style: TextStyle(color: color, fontWeight: FontWeight.bold),
-        ),
-      ),
-      title: Text(ticker.displaySymbol, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text('\$${ticker.lastPriceAsDouble.toStringAsFixed(2)}'),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            '${isPriceUp ? '+' : ''}${ticker.priceChangePercentAsDouble.toStringAsFixed(2)}%',
-            style: TextStyle(color: color, fontWeight: FontWeight.bold),
-          ),
-          Text(isPriceUp ? '▲' : '▼', style: TextStyle(color: color)),
-        ],
-      ),
-    );
+    return ticker.lastPriceAsDouble == 0
+        ? const SizedBox.shrink() // Fiyat 0 ise gösterme
+        : ListTile(
+            leading: CircleAvatar(
+              backgroundColor: color.withOpacity(0.2),
+              child: Text(
+                ticker.symbol?.substring(0, 1) ?? '?',
+                style: TextStyle(color: color, fontWeight: FontWeight.bold),
+              ),
+            ),
+            title: Text(ticker.displaySymbol, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('\$${ticker.lastPriceAsDouble.toStringAsFixed(2)}'),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '${isPriceUp ? '+' : ''}${ticker.priceChangePercentAsDouble.toStringAsFixed(2)}%',
+                  style: TextStyle(color: color, fontWeight: FontWeight.bold),
+                ),
+                Text(isPriceUp ? '▲' : '▼', style: TextStyle(color: color)),
+              ],
+            ),
+          );
   }
 }
