@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  // DI setup
-  serviceLocator.init();
+  // GetIt DI setup
+  setupGetIt();
 
   runApp(const MyApp());
 }
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue), useMaterial3: true),
       home: ChangeNotifierProvider(
-        create: (_) => MarketListViewModel(serviceLocator.tickerRepository)..loadTickers(), // ✅ Otomatik yükleme
+        create: (_) => MarketListViewModel(getIt())..loadTickers(),
         child: const MarketListScreen(),
       ),
     );

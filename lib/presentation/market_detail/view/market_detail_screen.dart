@@ -33,7 +33,7 @@ class MarketDetailScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(viewModel.error ?? 'Hata'),
+                  Text('Bir hata oluştu', textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
                   ElevatedButton(onPressed: viewModel.loadTickerDetail, child: const Text('Tekrar Dene')),
                 ],
               ),

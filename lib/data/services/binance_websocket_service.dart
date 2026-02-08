@@ -60,7 +60,7 @@ class BinanceWebSocketService {
   final Map<String, WebSocketChannel> _symbolChannels = {};
   final Map<String, StreamController<SymbolTickerModel>> _symbolControllers = {};
 
-  /// ✅ Tek symbol için detaylı ticker stream (bidPrice/askPrice dahil)
+  ///  Tek symbol için detaylı ticker stream (bidPrice/askPrice dahil)
   Stream<SymbolTickerModel> connectToSymbolTicker(String symbol) {
     final lowerSymbol = symbol.toLowerCase();
 

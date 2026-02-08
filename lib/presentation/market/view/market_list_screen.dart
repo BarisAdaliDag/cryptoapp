@@ -113,8 +113,7 @@ class _TickerListTile extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (_) => ChangeNotifierProvider(
-              create: (_) =>
-                  MarketDetailViewModel(serviceLocator.tickerRepository, ticker.symbol ?? '')..loadTickerDetail(),
+              create: (_) => MarketDetailViewModel(getIt(), ticker.symbol ?? '')..loadTickerDetail(),
               child: MarketDetailScreen(initialTicker: ticker),
             ),
           ),

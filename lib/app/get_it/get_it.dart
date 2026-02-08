@@ -3,33 +3,19 @@ import 'package:cryptoapp/data/repository/ticker_repository.dart';
 import 'package:cryptoapp/data/services/binance_service.dart';
 import 'package:cryptoapp/data/services/binance_websocket_service.dart';
 import 'package:cryptoapp/data/services/i_binance_service.dart';
+import 'package:get_it/get_it.dart';
 
-/// Basit DI container (GetIt kullanmadan)
-class ServiceLocator {
-  static final ServiceLocator _instance = ServiceLocator._internal();
-  factory ServiceLocator() => _instance;
-  ServiceLocator._internal();
+final getIt = GetIt.instance;
 
-  // Services (Singleton)
-  late final IBinanceService _binanceService;
-  late final BinanceWebSocketService _websocketService;
+/// GetIt ile DI kurulumu
+void setupGetIt() {
+  // Services
+  getIt.registerLazySingleton<IBinanceService>(() => BinanceService());
+  getIt.registerLazySingleton<BinanceWebSocketService>(() => BinanceWebSocketService());
 
-  // Repository (Singleton)
-  late final ITickerRepository _tickerRepository;
-
-  /// Initialize all dependencies
-  void init() {
-    // Services
-    _binanceService = BinanceService();
-    _websocketService = BinanceWebSocketService();
-
-    // Repository
-    _tickerRepository = TickerRepository(binanceService: _binanceService, websocketService: _websocketService);
-  }
-
-  // Getters
-  ITickerRepository get tickerRepository => _tickerRepository;
+  // Repository
+  getIt.registerLazySingleton<ITickerRepository>(
+    () =>
+        TickerRepository(binanceService: getIt<IBinanceService>(), websocketService: getIt<BinanceWebSocketService>()),
+  );
 }
-
-// Global accessor
-final serviceLocator = ServiceLocator();
