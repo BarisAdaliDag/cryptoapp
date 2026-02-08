@@ -24,7 +24,6 @@ class MarketDetailViewModel extends ChangeNotifier {
 
   // ===================== PUBLIC METHODS =====================
 
-  /// İlk yükleme: REST API'den ticker detayını çek
   Future<void> loadTickerDetail() async {
     _setLoading(true);
     _error = null;
@@ -34,7 +33,7 @@ class MarketDetailViewModel extends ChangeNotifier {
     result.when(
       success: (data) {
         _ticker = data;
-        _startRealtimeUpdates(); // WebSocket'i başlat
+        _startRealtimeUpdates();
       },
       failure: (error) {
         _error = error.meta?.infoList?.first.message ?? 'Bir hata oluştu';
