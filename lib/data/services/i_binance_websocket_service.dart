@@ -4,23 +4,18 @@ import 'package:cryptoapp/data/models/symbol_ticker_model.dart';
 abstract class IBinanceWebSocketService {
   bool get isConnected;
 
-  void connect();
-
-  void disconnect();
-
-  void reconnect();
-
-  void dispose();
-
-  // ================== ALL MARKETS (Liste Ekranı) ==================
-
+  /// Tüm marketler için mini ticker stream
   Stream<List<MiniTickerModel>> connectToMiniTickerStream();
 
-  void disconnectAllMarkets();
-
-  // ================== SINGLE SYMBOL  ==================
-
+  /// Tek symbol için detaylı ticker stream (bidPrice/askPrice dahil)
   Stream<SymbolTickerModel> connectToSymbolTicker(String symbol);
 
+  /// Tüm marketler WebSocket'ini kapat
+  void disconnectAllMarkets();
+
+  /// Tek symbol WebSocket'ini kapat
   void disconnectSymbol(String symbol);
+
+  /// Tüm kaynakları temizle
+  void dispose();
 }
