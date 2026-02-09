@@ -1,10 +1,14 @@
-import 'package:cryptoapp/app/get_it/get_it.dart';
-import 'package:cryptoapp/presentation/market_detail/view/market_detail_screen.dart';
-import 'package:cryptoapp/presentation/market_detail/viewmodel/market_detail_viewmodel.dart';
+import 'package:cryptoapp/app/const/app_color.dart';
+import 'package:cryptoapp/app/const/app_constants.dart';
+import 'package:cryptoapp/app/extension/padding_extension.dart';
+import 'package:cryptoapp/presentation/market/viewmodel/market_list_viewmodel.dart';
+import 'package:cryptoapp/presentation/market/view/widgets/market_header.dart';
+import 'package:cryptoapp/presentation/market/view/widgets/market_loading_state.dart';
+import 'package:cryptoapp/presentation/market/view/widgets/market_error_state.dart';
+import 'package:cryptoapp/presentation/market/view/widgets/market_empty_state.dart';
+import 'package:cryptoapp/presentation/market/view/widgets/ticker_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cryptoapp/presentation/market/viewmodel/market_list_viewmodel.dart';
-import 'package:cryptoapp/data/models/ticker_model.dart';
 
 class MarketListScreen extends StatelessWidget {
   const MarketListScreen({super.key});
@@ -12,132 +16,48 @@ class MarketListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Crypto Market'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: Padding(padding: const EdgeInsets.all(8.0), child: _SearchBar()),
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            const MarketHeader(),
+            Expanded(child: _buildMarketList()),
+          ],
         ),
       ),
-      body: Consumer<MarketListViewModel>(
-        builder: (context, viewModel, child) {
-          // Loading
-          if (viewModel.isLoading) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [CircularProgressIndicator(), SizedBox(height: 16), Text('Veriler yükleniyor...')],
-              ),
-            );
-          }
+    );
+  }
 
-          // Error
-          if (viewModel.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error, size: 64, color: Colors.grey[400]),
-                    const SizedBox(height: 16),
-                    Text('Bir hata oluştu', textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: viewModel.loadTickers,
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Tekrar Dene'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
+  Widget _buildMarketList() {
+    return Consumer<MarketListViewModel>(
+      builder: (context, viewModel, child) {
+        if (viewModel.isLoading) {
+          return const MarketLoadingState();
+        }
 
-          // Empty
-          if (viewModel.isEmpty) {
-            return const Center(child: Text('Veri bulunamadı'));
-          }
+        if (viewModel.hasError) {
+          return MarketErrorState(viewModel: viewModel);
+        }
 
-          // List
-          return ListView.builder(
+        if (viewModel.isEmpty) {
+          return const MarketEmptyState();
+        }
+
+        return RefreshIndicator(
+          onRefresh: viewModel.refresh,
+          color: AppColors.primary,
+          backgroundColor: AppColors.foreground,
+          child: ListView.separated(
+            padding: EdgeInsets.fromLTRB(AppConstants.kPaddingHorizontal, 0, AppConstants.kPaddingHorizontal, 48),
             itemCount: viewModel.tickers.length,
+            separatorBuilder: (_, __) => Divider(height: 1, thickness: 1, color: AppColors.divider),
             itemBuilder: (context, index) {
               final ticker = viewModel.tickers[index];
-              return _TickerListTile(ticker: ticker);
+              return TickerListTile(ticker: ticker);
             },
-          );
-        },
-      ),
-    );
-  }
-}
-
-// ===================== SEARCH BAR =====================
-class _SearchBar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final viewModel = context.read<MarketListViewModel>();
-
-    return TextField(
-      decoration: InputDecoration(
-        hintText: 'Ara (BTC, ETH...)',
-        prefixIcon: const Icon(Icons.search),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        filled: true,
-        fillColor: Colors.grey[100],
-      ),
-      onChanged: viewModel.searchTickers,
-    );
-  }
-}
-
-// ===================== LIST ITEM =====================
-class _TickerListTile extends StatelessWidget {
-  final TickerModel ticker;
-
-  const _TickerListTile({required this.ticker});
-
-  @override
-  Widget build(BuildContext context) {
-    final isPriceUp = ticker.isPriceUp;
-    final color = isPriceUp ? Colors.green : Colors.red;
-
-    return ListTile(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ChangeNotifierProvider(
-              create: (_) => MarketDetailViewModel(getIt(), ticker.symbol ?? '')..loadTickerDetail(),
-              child: MarketDetailScreen(initialTicker: ticker),
-            ),
           ),
         );
       },
-      leading: CircleAvatar(
-        backgroundColor: color.withOpacity(0.2),
-        child: Text(
-          ticker.symbol?.substring(0, 1) ?? '?',
-          style: TextStyle(color: color, fontWeight: FontWeight.bold),
-        ),
-      ),
-      title: Text(ticker.displaySymbol, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text('\$${ticker.lastPriceAsDouble.toStringAsFixed(2)}'),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            '${isPriceUp ? '+' : ''}${ticker.priceChangePercentAsDouble.toStringAsFixed(2)}%',
-            style: TextStyle(color: color, fontWeight: FontWeight.bold),
-          ),
-          Text(isPriceUp ? '▲' : '▼', style: TextStyle(color: color)),
-        ],
-      ),
     );
   }
 }
