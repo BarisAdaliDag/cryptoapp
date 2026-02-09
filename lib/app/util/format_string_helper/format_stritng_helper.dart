@@ -4,10 +4,7 @@ class FormatStringHelper {
   /// Format price with proper decimal places and thousand separators
   static String formatPrice(double price) {
     if (price >= 1000) {
-      return price.toStringAsFixed(2).replaceAllMapped(
-            RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-            (Match m) => '${m[1]},',
-          );
+      return price.toStringAsFixed(2).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
     } else if (price >= 1) {
       return price.toStringAsFixed(2);
     } else if (price >= 0.01) {
@@ -53,10 +50,6 @@ class FormatStringHelper {
 
   /// Get coin display name from symbol
   static String getCoinDisplayName(String symbol) {
-    return symbol
-        .replaceAll('/USDT', '')
-        .replaceAll('/BTC', '')
-        .replaceAll('/ETH', '')
-        .toUpperCase();
+    return symbol.replaceAll('/USDT', '').replaceAll('/BTC', '').replaceAll('/ETH', '').toUpperCase();
   }
 }

@@ -1,8 +1,8 @@
+import 'package:cryptoapp/app/util/format_string_helper/format_stritng_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:cryptoapp/data/models/ticker_model.dart';
 import 'package:cryptoapp/app/const/app_color.dart';
 import 'package:cryptoapp/app/const/app_typo.dart';
-import 'package:cryptoapp/app/util/format_string_helper';
 
 class MarketDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
   final TickerModel tickerModel;

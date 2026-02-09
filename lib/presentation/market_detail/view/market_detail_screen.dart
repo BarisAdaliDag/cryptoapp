@@ -6,10 +6,9 @@ import 'package:cryptoapp/data/models/ticker_model.dart';
 
 import 'package:cryptoapp/app/const/app_color.dart';
 import 'package:cryptoapp/app/const/app_string.dart';
-import 'package:cryptoapp/app/const/app_typo.dart';
+
 import '../../../app/widgets/loading_state.dart';
 import '../../../app/widgets/error_state.dart';
-import '../../../app/util/format_string_helper';
 
 import 'widgets/market_detail_app_bar.dart';
 import 'widgets/price_hero_section.dart';

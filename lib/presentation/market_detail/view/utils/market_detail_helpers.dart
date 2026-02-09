@@ -1,6 +1,7 @@
+import 'package:cryptoapp/app/util/format_string_helper/format_stritng_helper.dart';
 import 'package:cryptoapp/data/models/ticker_model.dart';
 import 'package:cryptoapp/app/const/app_string.dart';
-import 'package:cryptoapp/app/util/format_string_helper';
+
 import '../extensions/ticker_model_extension.dart';
 
 class MarketDetailHelpers {
