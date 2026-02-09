@@ -1,5 +1,6 @@
 import 'package:cryptoapp/app/const/app_color.dart';
 import 'package:cryptoapp/app/get_it/get_it.dart';
+import 'package:cryptoapp/app/router/app_router.dart';
 import 'package:cryptoapp/app/theme/app_theme.dart';
 import 'package:cryptoapp/app/util/navigation_helper/navigation_helper.dart';
 import 'package:cryptoapp/presentation/market/view/market_list_screen.dart';
@@ -19,12 +20,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => getIt<MarketListViewModel>()..loadTickers())],
-      child: MaterialApp(
+      child: MaterialApp.router(
         title: 'Crypto Market',
         debugShowCheckedModeBanner: false,
-        navigatorKey: Navigation.navigationKey,
         theme: AppTheme.darkTheme,
-        home: const MarketListScreen(),
+        routerConfig: AppRouter.router,
       ),
     );
   }

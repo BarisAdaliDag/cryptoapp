@@ -8,6 +8,7 @@ import 'package:cryptoapp/presentation/market_detail/view/market_detail_screen.d
 import 'package:cryptoapp/presentation/market_detail/viewmodel/market_detail_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class TickerListTile extends StatelessWidget {
@@ -74,14 +75,10 @@ class TickerListTile extends StatelessWidget {
 
   void _navigateToDetail(BuildContext context) {
     FocusScope.of(context).unfocus();
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ChangeNotifierProvider(
-          create: (_) => MarketDetailViewModel(getIt(), tickerModel.symbol ?? '')..loadTickerDetail(),
-          child: MarketDetailScreen(tickerModel: tickerModel),
-        ),
-      ),
+    context.pushNamed(
+      'market_detail',
+      pathParameters: {'symbol': tickerModel.symbol ?? ''},
+      extra: tickerModel, // TickerModel'i extra olarak gönder
     );
   }
 }
