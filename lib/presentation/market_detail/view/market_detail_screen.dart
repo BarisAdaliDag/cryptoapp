@@ -9,16 +9,18 @@ import 'package:cryptoapp/app/const/app_string.dart';
 import 'package:cryptoapp/app/const/app_typo.dart';
 import '../../../app/widgets/loading_state.dart';
 import '../../../app/widgets/error_state.dart';
-import '../../../app/widgets/app_button.dart';
 import '../../../app/util/format_string_helper';
-import '../widgets/price_hero_section.dart';
-import '../widgets/market_stats_section.dart';
-import '../widgets/order_book_section.dart';
-import '../widgets/timeline_section.dart';
+
+import 'widgets/market_detail_app_bar.dart';
+import 'widgets/price_hero_section.dart';
+import 'widgets/market_stats_section.dart';
+import 'widgets/order_book_section.dart';
+import 'widgets/timeline_section.dart';
+import 'widgets/bottom_actions.dart';
 
 class MarketDetailScreen extends StatelessWidget {
   final TickerModel tickerModel;
-  static const double _horizontalPadding = 16.0;
+  static const double horizontalPadding = 16.0;
 
   const MarketDetailScreen({super.key, required this.tickerModel});
 
@@ -26,24 +28,13 @@ class MarketDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: _buildAppBar(context),
-      body: Stack(children: [_buildContent(context), _buildBottomActions(context)]),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    return AppBar(
-      leading: IconButton(icon: const Icon(Icons.chevron_left), onPressed: () => Navigator.pop(context)),
-      title: Column(
+      appBar: MarketDetailAppBar(tickerModel: tickerModel),
+      body: Stack(
         children: [
-          Text(tickerModel.displaySymbol, style: Theme.of(context).appBarTheme.titleTextStyle),
-          Text(
-            FormatStringHelper.getCoinDisplayName(tickerModel.symbol ?? ''),
-            style: AppTypography.caption.copyWith(color: AppColors.secondaryText, fontWeight: FontWeight.w500, letterSpacing: 1.5),
-          ),
+          _buildContent(context),
+          BottomActionsWidget(tickerModel: tickerModel),
         ],
       ),
-      actions: [IconButton(icon: const Icon(Icons.star_border, size: 24), onPressed: () {})],
     );
   }
 
@@ -65,7 +56,7 @@ class MarketDetailScreen extends StatelessWidget {
           color: AppColors.primary,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding),
+            padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
             child: Column(
               children: [
                 PriceHeroSection(ticker: ticker),
@@ -78,33 +69,6 @@ class MarketDetailScreen extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildBottomActions(BuildContext context) {
-    final baseCoin = tickerModel.displaySymbol.split('/').first;
-
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppColors.background.withOpacity(0), AppColors.background.withOpacity(0.95), AppColors.background],
-          ),
-        ),
-        child: Row(
-          children: [
-            Expanded(child: AppButton(text: '${AppStrings.buy} $baseCoin', onPressed: () {}, variant: ButtonVariant.primary)),
-            const Gap(12),
-            Expanded(child: AppButton(text: '${AppStrings.sell} $baseCoin', onPressed: () {}, variant: ButtonVariant.secondary)),
-          ],
-        ),
-      ),
     );
   }
 }

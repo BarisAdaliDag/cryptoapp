@@ -17,8 +17,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => MarketListViewModel(getIt())..loadTickers(),
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => getIt<MarketListViewModel>()..loadTickers())],
       child: MaterialApp(
         title: 'Crypto Market',
         debugShowCheckedModeBanner: false,
