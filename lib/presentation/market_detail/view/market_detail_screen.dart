@@ -29,12 +29,7 @@ class MarketDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: MarketDetailAppBar(tickerModel: tickerModel),
-      body: Stack(
-        children: [
-          _buildContent(context),
-          BottomActionsWidget(tickerModel: tickerModel),
-        ],
-      ),
+      body: _buildContent(context),
     );
   }
 
@@ -63,7 +58,8 @@ class MarketDetailScreen extends StatelessWidget {
                 MarketStatsSection(ticker: ticker),
                 OrderBookSection(ticker: ticker),
                 TimelineSection(ticker: ticker),
-                const Gap(120),
+                BottomActionsWidget(tickerModel: tickerModel),
+                const Gap(100),
               ],
             ),
           ),

@@ -20,16 +20,18 @@ class TickerListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => _navigateToDetail(context),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(child: _buildSymbolInfo()),
-          _buildPriceInfo(),
-        ],
-      ).symmetricPadding(vertical: _verticalPadding),
-    );
+    return tickerModel.lastPriceAsDouble == 0
+        ? const SizedBox.shrink()
+        : InkWell(
+            onTap: () => _navigateToDetail(context),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(child: _buildSymbolInfo()),
+                _buildPriceInfo(),
+              ],
+            ).symmetricPadding(vertical: _verticalPadding),
+          );
   }
 
   Widget _buildSymbolInfo() {
