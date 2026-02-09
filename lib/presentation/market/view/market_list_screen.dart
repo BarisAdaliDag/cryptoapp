@@ -8,14 +8,17 @@ class MarketListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            MarketHeader(),
-            Expanded(child: MarketListContent()),
-          ],
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: const SafeArea(
+          child: Column(
+            children: [
+              MarketHeader(),
+              Expanded(child: MarketListContent()),
+            ],
+          ),
         ),
       ),
     );

@@ -73,6 +73,7 @@ class TickerListTile extends StatelessWidget {
   }
 
   void _navigateToDetail(BuildContext context) {
+    FocusScope.of(context).unfocus();
     Navigator.push(
       context,
       MaterialPageRoute(
