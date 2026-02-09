@@ -1,15 +1,11 @@
 import 'package:cryptoapp/app/const/app_color.dart';
 import 'package:cryptoapp/app/const/app_typo.dart';
 import 'package:cryptoapp/app/extension/padding_extension.dart';
-import 'package:cryptoapp/app/get_it/get_it.dart';
 import 'package:cryptoapp/app/util/format_string_helper/format_stritng_helper.dart';
 import 'package:cryptoapp/data/models/ticker_model.dart';
-import 'package:cryptoapp/presentation/market_detail/view/market_detail_screen.dart';
-import 'package:cryptoapp/presentation/market_detail/viewmodel/market_detail_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 class TickerListTile extends StatelessWidget {
   final TickerModel tickerModel;
