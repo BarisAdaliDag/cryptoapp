@@ -11,56 +11,62 @@ import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 
 class TickerListTile extends StatelessWidget {
-  final TickerModel ticker;
+  final TickerModel tickerModel;
 
-  const TickerListTile({super.key, required this.ticker});
+  const TickerListTile({super.key, required this.tickerModel});
+
+  static const double _verticalPadding = 20.0;
+  static const double _symbolSpacing = 4.0;
 
   @override
   Widget build(BuildContext context) {
-    final isPriceUp = ticker.isPriceUp;
-    final changeColor = isPriceUp ? AppColors.bull : AppColors.bear;
-
     return InkWell(
       onTap: () => _navigateToDetail(context),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  ticker.displaySymbol,
-                  style: AppTypography.title.copyWith(color: AppColors.primaryText, height: 1),
-                ),
-                const Gap(4),
-                Text(
-                  FormatStringHelper.getCoinDisplayName(ticker.symbol ?? ''),
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.secondaryText,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '\$${FormatStringHelper.formatPrice(ticker.lastPriceAsDouble)}',
-                style: AppTypography.title.copyWith(color: AppColors.primaryText, height: 1),
-              ),
-              const Gap(4),
-              Text(
-                FormatStringHelper.formatPercent(ticker.priceChangePercentAsDouble),
-                style: AppTypography.bodyMedium.copyWith(color: changeColor, fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
+          Expanded(child: _buildSymbolInfo()),
+          _buildPriceInfo(),
         ],
-      ).symmetricPadding(vertical: 20),
+      ).symmetricPadding(vertical: _verticalPadding),
+    );
+  }
+
+  Widget _buildSymbolInfo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(tickerModel.displaySymbol, style: AppTypography.title.copyWith(color: AppColors.primaryText, height: 1)),
+        const Gap(_symbolSpacing),
+        Text(
+          FormatStringHelper.getCoinDisplayName(tickerModel.symbol ?? ''),
+          style: AppTypography.bodySmall.copyWith(
+            color: AppColors.secondaryText,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1.2,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPriceInfo() {
+    final isPriceUp = tickerModel.isPriceUp;
+    final changeColor = isPriceUp ? AppColors.bull : AppColors.bear;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          '\$${FormatStringHelper.formatPrice(tickerModel.lastPriceAsDouble)}',
+          style: AppTypography.title.copyWith(color: AppColors.primaryText, height: 1),
+        ),
+        const Gap(_symbolSpacing),
+        Text(
+          FormatStringHelper.formatPercent(tickerModel.priceChangePercentAsDouble),
+          style: AppTypography.bodyMedium.copyWith(color: changeColor, fontWeight: FontWeight.w600),
+        ),
+      ],
     );
   }
 
@@ -69,8 +75,8 @@ class TickerListTile extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (_) => ChangeNotifierProvider(
-          create: (_) => MarketDetailViewModel(getIt(), ticker.symbol ?? '')..loadTickerDetail(),
-          child: MarketDetailScreen(initialTicker: ticker),
+          create: (_) => MarketDetailViewModel(getIt(), tickerModel.symbol ?? '')..loadTickerDetail(),
+          child: MarketDetailScreen(tickerModel: tickerModel),
         ),
       ),
     );

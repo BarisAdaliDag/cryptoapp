@@ -1,5 +1,6 @@
 import 'package:cryptoapp/app/const/app_color.dart';
 import 'package:cryptoapp/app/get_it/get_it.dart';
+import 'package:cryptoapp/app/theme/app_theme.dart';
 import 'package:cryptoapp/app/util/navigation_helper/navigation_helper.dart';
 import 'package:cryptoapp/presentation/market/view/market_list_screen.dart';
 import 'package:cryptoapp/presentation/market/viewmodel/market_list_viewmodel.dart';
@@ -22,12 +23,7 @@ class MyApp extends StatelessWidget {
         title: 'Crypto Market',
         debugShowCheckedModeBanner: false,
         navigatorKey: Navigation.navigationKey,
-        theme: ThemeData(
-          brightness: Brightness.dark,
-          scaffoldBackgroundColor: AppColors.background,
-          primaryColor: AppColors.primary,
-          fontFamily: 'Manrope',
-        ),
+        theme: AppTheme.darkTheme,
         home: const MarketListScreen(),
       ),
     );

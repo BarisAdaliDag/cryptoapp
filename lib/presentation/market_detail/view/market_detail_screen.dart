@@ -1,233 +1,110 @@
 import 'package:cryptoapp/presentation/market_detail/viewmodel/market_detail_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:cryptoapp/data/models/ticker_model.dart';
 
-class MarketDetailScreen extends StatelessWidget {
-  final TickerModel initialTicker;
+import 'package:cryptoapp/app/const/app_color.dart';
+import 'package:cryptoapp/app/const/app_string.dart';
+import 'package:cryptoapp/app/const/app_typo.dart';
+import '../../../app/widgets/loading_state.dart';
+import '../../../app/widgets/error_state.dart';
+import '../../../app/widgets/app_button.dart';
+import '../../../app/util/format_string_helper';
+import '../widgets/price_hero_section.dart';
+import '../widgets/market_stats_section.dart';
+import '../widgets/order_book_section.dart';
+import '../widgets/timeline_section.dart';
 
-  const MarketDetailScreen({super.key, required this.initialTicker});
+class MarketDetailScreen extends StatelessWidget {
+  final TickerModel tickerModel;
+  static const double _horizontalPadding = 16.0;
+
+  const MarketDetailScreen({super.key, required this.tickerModel});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(initialTicker.displaySymbol),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              context.read<MarketDetailViewModel>().refresh();
-            },
+      backgroundColor: AppColors.background,
+      appBar: _buildAppBar(context),
+      body: Stack(children: [_buildContent(context), _buildBottomActions(context)]),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      leading: IconButton(icon: const Icon(Icons.chevron_left), onPressed: () => Navigator.pop(context)),
+      title: Column(
+        children: [
+          Text(tickerModel.displaySymbol, style: Theme.of(context).appBarTheme.titleTextStyle),
+          Text(
+            FormatStringHelper.getCoinDisplayName(tickerModel.symbol ?? ''),
+            style: AppTypography.caption.copyWith(color: AppColors.secondaryText, fontWeight: FontWeight.w500, letterSpacing: 1.5),
           ),
         ],
       ),
-      body: Consumer<MarketDetailViewModel>(
-        builder: (context, viewModel, child) {
-          if (viewModel.isLoading && !viewModel.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (viewModel.hasError && !viewModel.hasData) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Bir hata oluştu', textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
-                  ElevatedButton(onPressed: viewModel.loadTickerDetail, child: const Text('Tekrar Dene')),
-                ],
-              ),
-            );
-          }
-
-          final ticker = viewModel.ticker ?? initialTicker;
-          return RefreshIndicator(
-            onRefresh: viewModel.refresh,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _PriceCard(ticker: ticker),
-                  const SizedBox(height: 16),
-                  _StatsGrid(ticker: ticker),
-                  const SizedBox(height: 16),
-                  _OrderBookCard(ticker: ticker),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+      actions: [IconButton(icon: const Icon(Icons.star_border, size: 24), onPressed: () {})],
     );
   }
-}
 
-// ===================== PRICE CARD =====================
-class _PriceCard extends StatelessWidget {
-  final TickerModel ticker;
+  Widget _buildContent(BuildContext context) {
+    return Consumer<MarketDetailViewModel>(
+      builder: (context, viewModel, child) {
+        if (viewModel.isLoading && !viewModel.hasData) {
+          return const LoadingState(message: AppStrings.loadingMarketData);
+        }
 
-  const _PriceCard({required this.ticker});
+        if (viewModel.hasError && !viewModel.hasData) {
+          return ErrorState(title: AppStrings.failedToLoadData, onRetry: viewModel.loadTickerDetail);
+        }
 
-  @override
-  Widget build(BuildContext context) {
-    final isPriceUp = ticker.isPriceUp;
-    final color = isPriceUp ? Colors.green : Colors.red;
+        final ticker = viewModel.ticker ?? tickerModel;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Text(ticker.displaySymbol, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 16),
-            Text(
-              '\$${ticker.lastPriceAsDouble.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+        return RefreshIndicator(
+          onRefresh: viewModel.refresh,
+          color: AppColors.primary,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding),
+            child: Column(
               children: [
-                Icon(isPriceUp ? Icons.arrow_upward : Icons.arrow_downward, color: color),
-                Text(
-                  '${isPriceUp ? '+' : ''}${ticker.priceChangePercentAsDouble.toStringAsFixed(2)}%',
-                  style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+                PriceHeroSection(ticker: ticker),
+                MarketStatsSection(ticker: ticker),
+                OrderBookSection(ticker: ticker),
+                TimelineSection(ticker: ticker),
+                const Gap(120),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
-}
 
-// ===================== STATS GRID =====================
-class _StatsGrid extends StatelessWidget {
-  final TickerModel ticker;
+  Widget _buildBottomActions(BuildContext context) {
+    final baseCoin = tickerModel.displaySymbol.split('/').first;
 
-  const _StatsGrid({required this.ticker});
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      childAspectRatio: 2.5,
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      children: [
-        _StatItem(
-          label: '24h Yüksek',
-          value: '\$${double.tryParse(ticker.highPrice ?? '0')?.toStringAsFixed(2) ?? '0'}',
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppColors.background.withOpacity(0), AppColors.background.withOpacity(0.95), AppColors.background],
+          ),
         ),
-        _StatItem(label: '24h Düşük', value: '\$${double.tryParse(ticker.lowPrice ?? '0')?.toStringAsFixed(2) ?? '0'}'),
-        _StatItem(label: '24h Hacim', value: double.tryParse(ticker.volume ?? '0')?.toStringAsFixed(0) ?? '0'),
-        _StatItem(
-          label: '24h Değişim',
-          value: '\$${double.tryParse(ticker.priceChange ?? '0')?.toStringAsFixed(2) ?? '0'}',
-        ),
-      ],
-    );
-  }
-}
-
-class _StatItem extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _StatItem({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
-            const SizedBox(height: 4),
-            Text(value, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Expanded(child: AppButton(text: '${AppStrings.buy} $baseCoin', onPressed: () {}, variant: ButtonVariant.primary)),
+            const Gap(12),
+            Expanded(child: AppButton(text: '${AppStrings.sell} $baseCoin', onPressed: () {}, variant: ButtonVariant.secondary)),
           ],
         ),
       ),
-    );
-  }
-}
-
-// ===================== ORDER BOOK CARD (BID/ASK) =====================
-class _OrderBookCard extends StatelessWidget {
-  final TickerModel ticker;
-
-  const _OrderBookCard({required this.ticker});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Emir Defteri', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _OrderItem(
-                    label: 'Alış Fiyatı',
-                    price: ticker.bidPrice ?? '0',
-                    quantity: ticker.bidQty ?? '0',
-                    color: Colors.green,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _OrderItem(
-                    label: 'Satış Fiyatı',
-                    price: ticker.askPrice ?? '0',
-                    quantity: ticker.askQty ?? '0',
-                    color: Colors.red,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _OrderItem extends StatelessWidget {
-  final String label;
-  final String price;
-  final String quantity;
-  final Color color;
-
-  const _OrderItem({required this.label, required this.price, required this.quantity, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
-        const SizedBox(height: 8),
-        Text(
-          '\$${double.tryParse(price)?.toStringAsFixed(2) ?? '0'}',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: color),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Miktar: ${double.tryParse(quantity)?.toStringAsFixed(4) ?? '0'}',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ],
     );
   }
 }
