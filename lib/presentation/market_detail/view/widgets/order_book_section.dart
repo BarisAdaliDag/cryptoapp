@@ -76,7 +76,7 @@ class _BidSection extends StatelessWidget {
               const Gap(4),
               Text(
                 AppStrings.bestBid,
-                style: AppTypography.caption.copyWith(
+                style: AppTypography.bodySmall.copyWith(
                   color: AppColors.bull,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.2,
@@ -121,7 +121,7 @@ class _AskSection extends StatelessWidget {
               const Gap(4),
               Text(
                 AppStrings.bestAsk,
-                style: AppTypography.caption.copyWith(
+                style: AppTypography.bodySmall.copyWith(
                   color: AppColors.bear,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.2,

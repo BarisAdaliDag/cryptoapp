@@ -7,19 +7,13 @@ class AppTheme {
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppColors.background,
     primaryColor: AppColors.primary,
-    fontFamily: 'Manrope',
 
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.background,
       elevation: 0,
       centerTitle: true,
       iconTheme: IconThemeData(color: AppColors.primaryText, size: 28),
-      titleTextStyle: TextStyle(
-        color: AppColors.primaryText,
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-        fontFamily: 'Manrope',
-      ),
+      titleTextStyle: TextStyle(color: AppColors.primaryText, fontSize: 16, fontWeight: FontWeight.w700),
     ),
 
     colorScheme: const ColorScheme.dark(

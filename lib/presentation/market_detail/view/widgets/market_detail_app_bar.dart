@@ -21,7 +21,7 @@ class MarketDetailAppBar extends StatelessWidget implements PreferredSizeWidget 
           Text(tickerModel.displaySymbol, style: Theme.of(context).appBarTheme.titleTextStyle),
           Text(
             FormatStringHelper.getCoinDisplayName(tickerModel.symbol ?? ''),
-            style: AppTypography.caption.copyWith(
+            style: AppTypography.bodySmall.copyWith(
               color: AppColors.secondaryText,
               fontWeight: FontWeight.w500,
               letterSpacing: 1.5,
